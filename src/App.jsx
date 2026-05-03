@@ -112,26 +112,36 @@ export default function App() {
   };
 
   // --- Tambahkan ini di Bagian 2 (Logika Backend) ---
- const handleRegisterUser = async (e) => {
+ const handleRegister = async (e) => {
   e.preventDefault();
-  const email = e.target.email.value;
-  const password = e.target.password.value;
-  const role = e.target.role.value;
+  setLoading(true);
+  
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email: regEmail,
+      password: regPassword,
+      options: {
+        data: {
+          full_name: regFullName,
+          role: regRole
+        }
+      }
+    });
 
-  const { data, error } = await supabase.auth.signUp({
-    email: email,
-    password: password,
-    options: {
-      data: { user_role: role }
-    }
-  });
+    if (error) throw error;
 
-  if (error) {
-    alert("Error: " + error.message);
-  } else {
-    alert("User " + email + " berhasil didaftarkan sebagai " + role);
-    createLog('Registrasi User', email, `Akses: ${role}`);
-    e.target.reset(); // Bersihkan form
+    // Tambahkan notifikasi sukses di sini
+    alert("Akun Berhasil Didaftarkan! Silakan gunakan email dan password tersebut untuk masuk.");
+    
+    // Reset form dan kembali ke tampilan login
+    setShowRegister(false);
+    setRegEmail('');
+    setRegPassword('');
+    setRegFullName('');
+  } catch (error) {
+    alert("Gagal mendaftar: " + error.message);
+  } finally {
+    setLoading(false);
   }
 };
 
