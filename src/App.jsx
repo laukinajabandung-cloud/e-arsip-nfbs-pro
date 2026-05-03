@@ -114,34 +114,42 @@ export default function App() {
   // --- Tambahkan ini di Bagian 2 (Logika Backend) ---
  const handleRegister = async (e) => {
   e.preventDefault();
-  setLoading(true);
-  
+  setLoading(true); // Memulai indikator loading
+
   try {
+    // 1. Proses pendaftaran ke Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email: regEmail,
       password: regPassword,
       options: {
         data: {
           full_name: regFullName,
-          role: regRole
-        }
-      }
+          role: regRole, // Misalnya: 'staf' atau 'pimpinan'
+        },
+      },
     });
 
     if (error) throw error;
 
-    // Tambahkan notifikasi sukses di sini
-    alert("Akun Berhasil Didaftarkan! Silakan gunakan email dan password tersebut untuk masuk.");
-    
-    // Reset form dan kembali ke tampilan login
+    // 2. PAKSA SIGN OUT (Sangat Penting)
+    // Supabase otomatis login setelah signUp, baris ini untuk memutus sesi tersebut.
+    await supabase.auth.signOut();
+
+    // 3. MUNCULKAN NOTIFIKASI
+    // Alert ini akan menahan proses selanjutnya sampai Bapak klik 'OK'.
+    alert("Akun Berhasil Didaftarkan! Silakan masuk menggunakan akun tersebut.");
+
+    // 4. RESET FORM & KEMBALI KE LOGIN
     setShowRegister(false);
     setRegEmail('');
     setRegPassword('');
     setRegFullName('');
+
   } catch (error) {
+    // Menampilkan pesan jika ada kesalahan (misal: email sudah terdaftar)
     alert("Gagal mendaftar: " + error.message);
   } finally {
-    setLoading(false);
+    setLoading(false); // Mematikan indikator loading
   }
 };
 
